@@ -51,9 +51,37 @@ namespace Vidly.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(NewCustomerViewModel viewModel)
+        public ActionResult Create(Customer customer)
         {
-            return View();
+            if (customer.Id == 0)
+                _context.Customers.Add(customer);
+            else
+            {
+                var customerDb = _context.Customers.Single(c => c.Id == customer.Id);
+                customerDb.Name = customer.Name;
+                customerDb.BirthDate = customer.BirthDate;
+                customerDb.MemberShipType = customer.MemberShipType;
+                customerDb.IsSubscribedToNewsletter = customer.IsSubscribedToNewsletter;
+                customerDb.MemberShipTypeId = customer.MemberShipTypeId;
+            }
+            _context.SaveChanges();
+            return RedirectToAction("Index", "Customers");
+        }
+
+        public ActionResult Edit(int id)
+        {
+            var customer = _context.Customers.SingleOrDefault(c => c.Id == id);
+            if (customer == null)
+            {
+                return HttpNotFound();
+            }
+
+            var viewModel = new NewCustomerViewModel
+            {
+                Customer = customer,
+                MemberShipTypes = _context.MemberShipTypes.ToList()
+            };
+            return View("New",viewModel);
         }
 
     }

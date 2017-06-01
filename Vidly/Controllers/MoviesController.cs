@@ -5,58 +5,41 @@ using System.Web;
 using System.Web.Mvc;
 using Vidly.Models;
 using Vidly.ViewModels;
+using System.Data.Entity;
 
 namespace Vidly.Controllers
 {
     public class MoviesController : Controller
     {
-        // GET: Movies
-        public ActionResult Random()
+        private ApplicationDbContext _context;
+
+        public MoviesController()
         {
-            var movie = new Movie   
-            {
-                Id = 1,
-                Name = "Titanic",
-            };
-            var customers = new List<Customer>
-            {
-                new Customer {Id = 1, Name = "Nguyễn Văn A"},
-                new Customer {Id = 2, Name = "Nguyễn Văn B"},
-                new Customer {Id = 3, Name = "Nguyễn Văn C"}
-
-            };
-
-            var viewModel = new RandomMovieViewModel
-            {
-                Movie = movie,
-                Customers = customers
-            };
-            return View(viewModel);
-
+            _context = new ApplicationDbContext();
         }
 
-        //public ActionResult Edit(int id)
-        //{
-        //    return Content("id=" + id);
-        //}
+        protected override void Dispose(bool disposing)
+        {
+            _context.Dispose();
+        }
 
-        ////movies
-        //public ActionResult Index(int? pageIndex, string sortBy)
-        //{
-        //    if (!pageIndex.HasValue)
-        //        pageIndex = 1;
+        public ActionResult Index()
+        {
+            var movies = _context.Movies.Include(m => m.Genre).ToList();
+            return View(movies);
+        }
 
-        //    if (String.IsNullOrWhiteSpace((sortBy)))
-        //        sortBy = "Name";
 
-        //    return Content(String.Format("pageIndex = {0}&sortBy = {1}", pageIndex, sortBy));
-        //}
+        public ActionResult Detail(int id)
+        {
+            var movie = _context.Movies.Include(m => m.Genre).SingleOrDefault(m => m.Id == id);
 
-        //[Route("movies/released/{year}/{month}")]
-        //public ActionResult ReleaseDate(int year, int month)
-        //{
-        //    return Content(string.Format("{0}/{1}", year, month));
-        //}
+            if (movie == null)
+            {
+                return HttpNotFound();
+            }
+            return View(movie);
+        }
     }
 
 

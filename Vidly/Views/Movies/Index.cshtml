@@ -5,6 +5,10 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<h1>Movies</h1>
+<p>
+    @Html.ActionLink("New Movies", "New","Movies", null, new {@class = "btn btn-primary"})
+</p>
 
 @if (!Model.Any())
 {
@@ -23,7 +27,7 @@ else
         @foreach (var movie in Model)
         {
             <tr>
-                <td>@Html.ActionLink(movie.Name, "Detail", "Movies", new { id = movie.Id }, null)</td>
+                <td>@Html.ActionLink(movie.Name, "Edit", "Movies", new { id = movie.Id }, null)</td>
                 <td>@movie.Genre.Name</td>
             </tr>
         }

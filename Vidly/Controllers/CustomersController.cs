@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Vidly.Models;
-using  System.Data.Entity;
+using System.Data.Entity;
 using Vidly.ViewModels;
 
 namespace Vidly.Controllers
@@ -53,16 +53,29 @@ namespace Vidly.Controllers
         [HttpPost]
         public ActionResult Create(Customer customer)
         {
-            if (customer.Id == 0)
-                _context.Customers.Add(customer);
+            if (!ModelState.IsValid)
+            {
+                var viewModel = new NewCustomerViewModel
+                {
+                    Customer = customer,
+                    MemberShipTypes = _context.MemberShipTypes.ToList()
+                };
+                return View("New", viewModel);
+            }
             else
             {
-                var customerDb = _context.Customers.Single(c => c.Id == customer.Id);
-                customerDb.Name = customer.Name;
-                customerDb.BirthDate = customer.BirthDate;
-                customerDb.MemberShipType = customer.MemberShipType;
-                customerDb.IsSubscribedToNewsletter = customer.IsSubscribedToNewsletter;
-                customerDb.MemberShipTypeId = customer.MemberShipTypeId;
+                if (customer.Id == 0)
+                    _context.Customers.Add(customer);
+                else
+                {
+                    var customerDb = _context.Customers.Single(c => c.Id == customer.Id);
+                    customerDb.Name = customer.Name;
+                    customerDb.BirthDate = customer.BirthDate;
+                    customerDb.MemberShipType = customer.MemberShipType;
+                    customerDb.IsSubscribedToNewsletter = customer.IsSubscribedToNewsletter;
+                    customerDb.MemberShipTypeId = customer.MemberShipTypeId;
+                }
+
             }
             _context.SaveChanges();
             return RedirectToAction("Index", "Customers");
@@ -81,7 +94,7 @@ namespace Vidly.Controllers
                 Customer = customer,
                 MemberShipTypes = _context.MemberShipTypes.ToList()
             };
-            return View("New",viewModel);
+            return View("New", viewModel);
         }
 
     }
